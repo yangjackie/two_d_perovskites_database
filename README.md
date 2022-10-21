@@ -1,4 +1,4 @@
-# two_d_perovskites_database
+# Computational Material Database for Free-Standing 2D Perovskites
 
 This repository provides the raw data associated with the publication of 'Computational Material Database of Free-Standing 2D Perovskites'. A set of Jupyter notebooks are also provided for analyzing and visualizing the data. These notebooks can be built with Binder (https://mybinder.org/) to start up a virtual environments for analyzing the data online.
 
