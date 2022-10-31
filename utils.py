@@ -72,3 +72,15 @@ def BO_bond_vectors_in_twod_perovskites(db, a, b, c, orientation, termination, t
         #v = cVector3D(*v)
         all_vectors.append(v)
     return all_vectors
+
+#helper function to retrieve back the out-of-plane space charge polarisation in 2D perovskites
+def polarisation(db, a, b, c, orientation, termination, thickness):
+    system_name = a + b + c
+    uid = system_name + '3_' + str(orientation) + "_" + str(termination) + "_" + str(thickness)
+    pol = None
+    try:
+        row = db.get(selection=[('uid', '=', uid)])
+        pol = row.key_value_pairs['e_pol'] + row.key_value_pairs['nu_pol']
+    except:
+        pass
+    return pol
