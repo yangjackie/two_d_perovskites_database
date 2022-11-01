@@ -1,5 +1,6 @@
 from ase.geometry.analysis import Analysis
 import numpy as np
+from dscribe.descriptors import MBTR
 
 termination_types = {'100': ['AO', 'BO2'], '110': ['O2', 'ABO'], '111': ['AO3', 'B']}
 
@@ -84,3 +85,38 @@ def polarisation(db, a, b, c, orientation, termination, thickness):
     except:
         pass
     return pol
+
+
+def row_to_mbtr_descriptor(row):
+    """
+    This helper function take a row from the database and return a many-body tensor representation of the structure.
+    For details, see Haoyan Huo and Matthias Rupp. Unified representation of molecules and crystals for
+    machine learning. arXiv e-prints, pages arXiv:1704.06439, Apr 2017.
+    """
+    print("Generating the descriptor for :" + row.key_value_pairs['uid'])
+    atoms = row.toatoms()
+    #crystal = map_ase_atoms_to_crystal(atoms)
+    __atomic_numbers = list(set(atoms.get_atomic_numbers()))
+
+    # this is just borrowed from https://singroup.github.io/dscribe/0.3.x/tutorials/mbtr.html#mbtr
+    k1 = {
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 1, "max": 200, "sigma": 0.05, "n": 200}
+    }
+
+    k2 = {
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0.1, "max": 2, "sigma": 0.05, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
+    }
+
+    k3 = {
+        "geometry": {"function": "angle"},
+        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3}
+    }
+
+    desc = MBTR(species=__atomic_numbers, periodic=True, k1=k1, k2=k2, k3=k3, flatten=True, normalization='n_atoms')
+    global_descriptor = desc.create(atoms)
+    # print(max(global_descriptor[0][:50]))
+    return global_descriptor
